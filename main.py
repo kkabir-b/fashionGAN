@@ -1,3 +1,3 @@
 import torch
 import torchvision
-import matplotlib.pyplot as pltpip
+import matplotlib.pyplot as plt

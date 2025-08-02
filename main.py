@@ -25,3 +25,10 @@ labels_map = {
     8: "Bag",
     9: "Ankle Boot",
 }
+
+#hyperParams
+img_size = (28,28) #not needed since all images are the same size but added for future refrence if applied to other datasets
+num_epochs = 5
+lr = 0.01
+nc = 1 #number of channels, since grayscale only 1 channel
+

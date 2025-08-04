@@ -7,8 +7,8 @@ import numpy as np
 from utilFunctions import save_images
 
 #creating datasets and loader
-train_data = datasets.FashionMNIST(root = '/home/kkabir/Desktop/projects/fashionGAN/data',train=True,download=True,transform=transforms.ToTensor())
-test_data = datasets.FashionMNIST(root = '/home/kkabir/Desktop/projects/fashionGAN/data',train=False,download=True,transform=transforms.ToTensor())
+train_data = datasets.FashionMNIST(root = './data',train=True,download=True,transform=transforms.ToTensor())
+test_data = datasets.FashionMNIST(root = './data',train=False,download=True,transform=transforms.ToTensor())
 
 
 train_loader = DataLoader(train_data,batch_size=16,shuffle=True)

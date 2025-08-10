@@ -74,10 +74,19 @@ class Generator(nn.Module): #the generating image class
         return self.main(input)
 
 netG = Generator().to(device)
-netG.apply(initialize_weights)
-print(netG)
+netG.apply(initialize_weights) #iniializing netG with default weights
 
-ahh = torch.randn(1,100,1,1,device=device)
-print(ahh.shape)
-res = netG(ahh)
-print(res.shape)
+class Discriminator(nn.Module): #module used to classify between real and fake image
+    def __init__(self):
+        super(Discriminator,self).__init__() #each layer of the nn added on a different layer for simplicity
+        self.main = nn.Sequential(
+            nn.Conv2d(1,1,kernel_size=(3,3)), #leads to a 26 x 26 output
+            nn.LeakyReLU(0.2,inplace=True),
+
+            nn.Conv2d(1,1,kernel_size=2,stride=2), #leads to a 13 x 13 ooutput
+            nn.BatchNorm2d(1),
+            nn.LeakyReLU(0.2,inplace=True),
+
+            nn.Conv2d(1,1),
+
+        )

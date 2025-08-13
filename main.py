@@ -1,4 +1,5 @@
 import torch
+import torch.optim as optim
 import torch.nn as nn
 import torchvision
 import matplotlib.pyplot as plt
@@ -38,10 +39,11 @@ labels_map = {
 #hyperParams and device
 img_size = (28,28) #not needed since all images are the same size but added for future refrence if applied to other datasets
 num_epochs = 5
+batch_size = 16
 lr = 0.01
 nc = 1 #number of channels, since grayscale only 1 channel
 nz = 100  #size of latent vector used to create the image
-lr = 0.0005
+lr = 0.0002
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 save_images(train_loader) #used to ensure dataloader working properly
@@ -99,3 +101,15 @@ class Discriminator(nn.Module): #module used to classify between real and fake i
     
     def forward(self,inputs):
         return self.main(inputs)
+    
+netD = Discriminator().to(device)
+netD.apply(initialize_weights)
+print(netD)
+
+#initializing the optimizers and loss functions
+criterion = nn.BCELoss()
+fixed_noise = torch.randn(batch_size,nz,1,1,device=device)
+real_label = 1
+fake_label = 0
+optimD = optim.Adam(netD.parameters(),lr=lr)
+optimG = optim.Adam(netG.parameters(),lr=lr)

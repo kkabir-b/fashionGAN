@@ -87,6 +87,15 @@ class Discriminator(nn.Module): #module used to classify between real and fake i
             nn.BatchNorm2d(1),
             nn.LeakyReLU(0.2,inplace=True),
 
-            nn.Conv2d(1,1),
-
+            nn.Conv2d(1,1,kernel_size=3,stride=2,padding=0), #leads to a 6x6 output
+            nn.BatchNorm2d(1),
+            nn.LeakyReLU(0.2,inplace=True),
+            nn.Flatten(),
+            nn.Linear(36,10),
+            nn.ReLU(),
+            nn.Linear(10,1),
+            nn.Sigmoid()
         )
+    
+    def forward(self,inputs):
+        return self.main(inputs)

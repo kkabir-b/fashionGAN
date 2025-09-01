@@ -12,7 +12,7 @@ from utilFunctions import save_images
 #
 set_seed = 100
 torch.manual_seed(set_seed)
-torch.use_deterministic_algorithms(True) #to allow for deterministic results
+
 
 #creating datasets and loader
 train_data = datasets.FashionMNIST(root = './data',train=True,download=True,transform=transforms.ToTensor())
@@ -38,7 +38,7 @@ labels_map = {
 
 #hyperParams and device
 img_size = (28,28) #not needed since all images are the same size but added for future refrence if applied to other datasets
-num_epochs = 5
+num_epochs = 7
 batch_size = 16
 lr = 0.01
 nc = 1 #number of channels, since grayscale only 1 channel
@@ -104,7 +104,7 @@ class Discriminator(nn.Module): #module used to classify between real and fake i
     
 netD = Discriminator().to(device)
 netD.apply(initialize_weights)
-print(netD)
+
 
 #initializing the optimizers and loss functions
 criterion = nn.BCELoss()
@@ -113,3 +113,60 @@ real_label = 1
 fake_label = 0
 optimD = optim.Adam(netD.parameters(),lr=lr)
 optimG = optim.Adam(netG.parameters(),lr=lr)
+
+#training loop
+img_list = []
+g_loss = []
+d_loss = []
+iters = 0
+
+for epoch in range(num_epochs):
+    for i,data in enumerate(train_loader,0):
+    # ----- updating discriminator
+        #real batch
+        netD.zero_grad()
+        real_cpu = data[0].to(device) #all the images moved to gpu or cpu
+        b_size = real_cpu.size(0) #batch size
+        label = torch.full((b_size,), real_label, dtype=torch.float, device=device) #labels made
+        output = netD(real_cpu).view(-1) #gets output of net D ie 0 or 1 if real or fake
+        errD_real = criterion(output, label) #error calced
+        errD_real.backward() #backwards propagated to make changes :]
+        D_x = output.mean().item()
+
+        #fake batch
+        noise = torch.randn(b_size, nz, 1, 1, device=device)
+        fake = netG(noise)
+        label.fill_(fake_label)
+        output = netD(fake.detach()).view(-1)
+        errD_fake = criterion(output, label)
+        errD_fake.backward()
+        D_G_z1 = output.mean().item()
+        errD = errD_real + errD_fake
+        optimD.step()
+    # ------- updating generator
+        netG.zero_grad()
+        label.fill_(real_label)
+        output = netD(fake).view(-1)
+        errG = criterion(output, label)
+        errG.backward()
+        D_G_z2 = output.mean().item()
+        optimG.step()
+
+        if i % 50 == 0:
+            print('[%d/%d][%d/%d]\tLoss_D: %.4f\tLoss_G: %.4f\tD(x): %.4f\tD(G(z)): %.4f / %.4f'
+                  % (epoch, num_epochs, i, len(train_loader),
+                     errD.item(), errG.item(), D_x, D_G_z1, D_G_z2))
+
+      
+        g_loss.append(errG.item())
+        d_loss.append(errD.item())
+
+#plot the loss and save the image
+plt.figure(figsize=(10,5))
+plt.title("Generator and Discriminator Loss During Training")
+plt.plot(g_loss,label="G")
+plt.plot(d_loss,label="D")
+plt.xlabel("iterations")
+plt.ylabel("Loss")
+plt.legend()
+plt.savefig('loss.png')

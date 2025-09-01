@@ -11,3 +11,4 @@ def save_images(loader):
     plt.title("Training Images")
     plt.imshow(np_image,cmap = 'gray')
     plt.savefig('test.png')
+
